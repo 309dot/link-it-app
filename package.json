@@ -1,18 +1,35 @@
 {
-  "name": "link-it-app-railway",
-  "version": "1.0.0",
-  "description": "딥링크 서비스 - Railway 배포용",
-  "main": "backend-express/server.js",
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "start": "cd backend-express && node server.js",
-    "build": "cd backend-express && npm install",
-    "dev": "cd backend-express && npm run dev"
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "engines": {
-    "node": ">=16.0.0"
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.1",
+    "@mui/material": "^7.3.1",
+    "@mui/x-charts": "^8.10.0",
+    "axios": "^1.11.0",
+    "mongoose": "^8.17.1",
+    "next": "15.4.6",
+    "open-graph-scraper": "^6.10.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/309dot/link-it-app.git"
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
