@@ -20,11 +20,9 @@ const nextConfig: NextConfig = {
       {
         source: '/:shortCode',
         destination: '/api/redirect/:shortCode',
-        has: [
-          {
-            type: 'host',
-            value: '(?!.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$).*'
-          }
+        // API, _next, dashboard 등은 제외
+        missing: [
+          { type: 'header', key: 'next-router-prefetch' },
         ]
       }
     ]
