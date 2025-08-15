@@ -41,11 +41,21 @@ async function connectDB(): Promise<typeof mongoose> {
   if (!cached!.promise) {
     const opts = {
       bufferCommands: false,
+      // 연결 타임아웃 및 재시도 설정
+      serverSelectionTimeoutMS: 5000, // 5초 타임아웃
+      maxPoolSize: 10,
+      retryWrites: true,
+      retryReads: true,
     };
 
     cached!.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log('📡 MongoDB 연결됨 (Next.js API)');
+      console.log('✅ MongoDB 연결됨 (Next.js API)');
       return mongoose;
+    }).catch((error) => {
+      console.error('❌ MongoDB 연결 실패:', error);
+      // 연결 실패시 cached promise 초기화
+      cached!.promise = null;
+      throw error;
     });
   }
 
@@ -53,7 +63,7 @@ async function connectDB(): Promise<typeof mongoose> {
     cached!.conn = await cached!.promise;
   } catch (e) {
     cached!.promise = null;
-    console.error('❌ MongoDB 연결 실패:', e);
+    console.error('❌ MongoDB 연결 실패 (최종):', e);
     throw new Error('MongoDB 연결에 실패했습니다. 연결 정보를 확인해주세요.');
   }
 

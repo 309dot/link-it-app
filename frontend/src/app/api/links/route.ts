@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
     
+    // MongoDB 연결 시도 (타임아웃 처리)
     await connectDB();
 
     const body = await request.json();
