@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = 'mongodb+srv://jing309:Elrhs4113@cluster0.eyfjgmh.mongodb.net/linkitdb?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = 'mongodb+srv://jing309:Elrhs4113@cluster0.eyfjgmh.mongodb.net/sample_mflix?retryWrites=true&w=majority&appName=Cluster0';
 console.log('🔥 MONGODB_URI 강제 설정:', !!MONGODB_URI);
 
 if (!MONGODB_URI && process.env.NODE_ENV !== 'development') {
