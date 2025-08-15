@@ -1,8 +1,7 @@
 {
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/dashboard/(.*)", "dest": "/dashboard/$1" },
-    { "src": "/_next/(.*)", "dest": "/_next/$1" },
-    { "src": "/([^.]+)", "dest": "/$1" }
-  ]
+  "functions": {
+    "frontend/src/app/[shortCode]/page.tsx": {
+      "maxDuration": 10
+    }
+  }
 }

@@ -10,6 +10,15 @@ const mockLinks: Record<string, string> = {
   'test123': 'https://example.com'
 }
 
+// Vercel에서 dynamic route 인식을 위한 static params 생성
+export async function generateStaticParams() {
+  return [
+    { shortCode: 'demo1' },
+    { shortCode: 'demo2' },
+    { shortCode: 'test123' },
+  ]
+}
+
 export default function RedirectPage() {
   const params = useParams()
   const shortCode = params?.shortCode as string
