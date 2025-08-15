@@ -12,8 +12,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
-  // 정적 파일 최적화
-  output: 'standalone',
+  // Vercel 배포 최적화
 };
 
 export default nextConfig;

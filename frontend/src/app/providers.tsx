@@ -2,7 +2,7 @@
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { useState, useEffect, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 const theme = createTheme({
   palette: {
@@ -64,16 +64,6 @@ interface ProvidersProps {
 }
 
 export default function Providers({ children }: ProvidersProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
