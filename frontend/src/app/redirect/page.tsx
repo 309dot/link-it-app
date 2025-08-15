@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 // 기본 목업 링크들
@@ -10,18 +10,9 @@ const mockLinks: Record<string, string> = {
   'test123': 'https://example.com'
 }
 
-// Vercel에서 dynamic route 인식을 위한 static params 생성
-export async function generateStaticParams() {
-  return [
-    { shortCode: 'demo1' },
-    { shortCode: 'demo2' },
-    { shortCode: 'test123' },
-  ]
-}
-
 export default function RedirectPage() {
-  const params = useParams()
-  const shortCode = params?.shortCode as string
+  const searchParams = useSearchParams()
+  const shortCode = searchParams.get('code') || ''
   const [status, setStatus] = useState('🔍 링크 확인 중...')
 
   useEffect(() => {
@@ -31,7 +22,7 @@ export default function RedirectPage() {
       return
     }
 
-    console.log('🔗 클라이언트 리디렉션:', shortCode)
+    console.log('🔗 Query Parameter 리디렉션:', shortCode)
 
     let redirectUrl = mockLinks[shortCode]
 
