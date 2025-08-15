@@ -23,13 +23,18 @@ export async function POST(request: NextRequest) {
 
     // 간단한 메타데이터 추출 (fetch로 HTML 가져오기)
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; Link-It/1.0)'
         },
         redirect: 'follow',
-        signal: AbortSignal.timeout(5000) // 5초 타임아웃
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
