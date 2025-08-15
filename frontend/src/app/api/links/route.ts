@@ -15,21 +15,9 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔧 API 호출 시작');
     
-    // MongoDB 연결 시도 (실패시 즉시 목업 응답)
-    let useDatabase = false;
-    try {
-      await Promise.race([
-        connectDB(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('DB 연결 시간 초과')), 3000)
-        )
-      ]);
-      useDatabase = true;
-      console.log('✅ MongoDB 연결 성공');
-    } catch (dbError) {
-      console.warn('⚠️ MongoDB 연결 실패, 목업 모드로 진행:', (dbError as Error).message);
-      useDatabase = false;
-    }
+    // 임시로 목업 모드 강제 사용
+    const useDatabase = false;
+    console.log('🔧 목업 모드 강제 활성화');
 
     const body = await request.json();
     const { originalUrl, title, description } = body;
