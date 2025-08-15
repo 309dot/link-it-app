@@ -1,0 +1,405 @@
+---
+alwaysApply: true
+---
+# Cursor Project Rules - 딥링크 서비스 (DeepLink Service)
+
+## 🎯 Project Overview
+
+This is a deep linking service that converts e-commerce product URLs into smart shortened links that automatically route users to the appropriate destination (mobile app or web) based on their device.
+
+**Key Features:**
+- URL shortening with smart redirection
+- App/Web automatic routing
+- Click analytics and tracking
+- Support for major Korean e-commerce platforms (Coupang, Naver, 11st)
+
+**Target User:** Product designers and marketers with no coding experience who want to build a functional MVP using Cursor AI.
+
+## 🏗 Architecture & Tech Stack
+
+```yaml
+Backend:
+  - Node.js with Express.js
+  - MongoDB for data storage
+  - JWT for authentication
+  
+Frontend:
+  - Next.js 14 (App Router)
+  - Tailwind CSS for styling
+  - Shadcn/ui for components
+  - Recharts for analytics
+
+Deployment:
+  - Vercel (recommended for beginners)
+  - Alternative: Railway or Render
+```
+
+## 📁 Project Structure
+
+```
+deeplink-service/
+├── backend/
+│   ├── src/
+│   │   ├── models/
+│   │   │   ├── Link.js         # MongoDB schema for links
+│   │   │   ├── User.js         # User authentication
+│   │   │   └── Analytics.js    # Click tracking data
+│   │   ├── routes/
+│   │   │   ├── links.js        # CRUD operations for links
+│   │   │   ├── redirect.js     # Handle redirections
+│   │   │   └── analytics.js    # Analytics endpoints
+│   │   ├── middleware/
+│   │   │   ├── deviceDetector.js # Device/OS detection
+│   │   │   └── clickTracker.js   # Track click events
+│   │   ├── utils/
+│   │   │   ├── deepLinkGenerator.js # Platform-specific deep links
+│   │   │   └── urlValidator.js      # URL validation
+│   │   └── config/
+│   │       └── platforms.js    # E-commerce platform configs
+│   ├── server.js               # Main server file
+│   └── package.json
+│
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx           # Landing page
+│   │   ├── dashboard/
+│   │   │   └── page.tsx       # Analytics dashboard
+│   │   ├── create/
+│   │   │   └── page.tsx       # Link creation page
+│   │   └── api/
+│   │       └── [...].ts       # API routes
+│   ├── components/
+│   │   ├── LinkForm.tsx       # Link creation form
+│   │   ├── LinkList.tsx       # Display created links
+│   │   ├── Analytics.tsx      # Analytics charts
+│   │   └── ui/               # Shadcn components
+│   └── lib/
+│       ├── api.ts            # API client
+│       └── utils.ts          # Utility functions
+│
+└── README.md
+```
+
+## 🎨 Coding Conventions
+
+### General Rules
+1. **Always use descriptive variable names** - No single letters except for loop indices
+2. **Comment complex logic** - Assume a non-developer will read this
+3. **Error handling is mandatory** - Every API call must have try-catch
+4. **Use TypeScript for frontend** - With strict mode enabled
+5. **Async/Await over Promises** - More readable for beginners
+
+### Naming Conventions
+```javascript
+// Files: kebab-case
+link-generator.js
+
+// Variables & Functions: camelCase
+const shortCode = generateShortCode();
+function createDeepLink() {}
+
+// Components: PascalCase
+LinkCreationForm.tsx
+
+// Constants: UPPER_SNAKE_CASE
+const MAX_URL_LENGTH = 2048;
+
+// MongoDB Models: PascalCase
+const Link = mongoose.model('Link', linkSchema);
+```
+
+## 🤖 AI Assistant Instructions
+
+When asked to generate code, always:
+
+1. **Provide complete, runnable code** - No placeholders or "..."
+2. **Include error handling** - Try-catch blocks and user-friendly error messages
+3. **Add detailed comments** - Explain what each section does
+4. **Provide example usage** - Show how to test the code
+5. **Include sample data** - For testing purposes
+
+### Example AI Prompt Template
+```markdown
+"Create a [FEATURE] that [DESCRIPTION].
+Requirements:
+- Include error handling
+- Add comments explaining the logic
+- Provide test data
+- Make it work with our existing [COMPONENT]
+- Follow our project structure"
+```
+
+## 🔧 Feature Implementation Guidelines
+
+### 1. URL Shortening & Link Creation
+
+```javascript
+// ALWAYS validate URLs before processing
+const isValidUrl = (url) => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Generate unique short codes
+const generateShortCode = () => {
+  // Use 6-character alphanumeric codes
+  return Math.random().toString(36).substring(2, 8);
+};
+
+// Platform detection from URL
+const detectPlatform = (url) => {
+  const platforms = {
+    'coupang.com': 'coupang',
+    'shopping.naver.com': 'naver',
+    '11st.co.kr': '11st',
+    'gmarket.co.kr': 'gmarket'
+  };
+  
+  const domain = new URL(url).hostname;
+  return Object.entries(platforms).find(([key]) => 
+    domain.includes(key)
+  )?.[1] || 'unknown';
+};
+```
+
+### 2. Deep Link Generation Rules
+
+```javascript
+// Platform-specific deep link templates
+const DEEPLINK_TEMPLATES = {
+  coupang: {
+    ios: 'coupang://product/{productId}',
+    android: 'intent://product/{productId}#Intent;scheme=coupang;package=com.coupang.mobile;end',
+    web: 'https://m.coupang.com/vm/products/{productId}'
+  },
+  naver: {
+    ios: 'navershopping://product?id={productId}',
+    android: 'intent://product?id={productId}#Intent;scheme=navershopping;package=com.nhn.android.search;end',
+    web: 'https://m.shopping.naver.com/products/{productId}'
+  }
+  // Add more platforms as needed
+};
+
+// Extract product ID from URL (platform-specific logic needed)
+const extractProductId = (url, platform) => {
+  // This needs custom regex for each platform
+  const patterns = {
+    coupang: /products\/(\d+)/,
+    naver: /products\/(\d+)/,
+    // Add more patterns
+  };
+  
+  const match = url.match(patterns[platform]);
+  return match ? match[1] : null;
+};
+```
+
+### 3. Smart Redirection Logic
+
+```javascript
+// Device detection middleware
+const detectDevice = (userAgent) => {
+  return {
+    isIOS: /iPhone|iPad|iPod/.test(userAgent),
+    isAndroid: /Android/.test(userAgent),
+    isMobile: /Mobile/.test(userAgent),
+    // Detect in-app browsers (important!)
+    isInAppBrowser: /FBAN|FBAV|Instagram|Line|KakaoTalk/.test(userAgent)
+  };
+};
+
+// Redirection strategy
+const getRedirectUrl = (link, device) => {
+  // For in-app browsers, always use web (deep links often fail)
+  if (device.isInAppBrowser) {
+    return link.webUrl;
+  }
+  
+  // iOS: Try Universal Link first
+  if (device.isIOS) {
+    return link.iosUrl || link.webUrl;
+  }
+  
+  // Android: Try App Link first
+  if (device.isAndroid) {
+    return link.androidUrl || link.webUrl;
+  }
+  
+  // Desktop: Always web
+  return link.webUrl;
+};
+```
+
+### 4. Analytics Implementation
+
+```javascript
+// Track every click with detailed information
+const trackClick = async (linkId, request) => {
+  const clickData = {
+    linkId,
+    timestamp: new Date(),
+    ip: request.ip,
+    userAgent: request.headers['user-agent'],
+    referer: request.headers['referer'] || 'direct',
+    device: detectDevice(request.headers['user-agent']),
+    // Add geolocation if needed (requires external API)
+  };
+  
+  await Analytics.create(clickData);
+};
+
+// Aggregate analytics for dashboard
+const getAnalytics = async (linkId, period = '7d') => {
+  // Return formatted data for charts
+  return {
+    totalClicks: 0,
+    deviceBreakdown: { ios: 0, android: 0, desktop: 0 },
+    clicksByHour: [],
+    topReferrers: [],
+    conversionRate: 0 // Requires integration with e-commerce APIs
+  };
+};
+```
+
+## 🧪 Testing Guidelines
+
+### Local Testing Setup
+```bash
+# Backend testing
+cd backend
+npm install
+npm run dev  # Runs on http://localhost:5000
+
+# Frontend testing
+cd frontend
+npm install
+npm run dev  # Runs on http://localhost:3000
+
+# MongoDB (use MongoDB Atlas for free cloud DB)
+# Connection string: mongodb+srv://<username>:<password>@cluster.mongodb.net/deeplink
+```
+
+### Test Cases to Always Check
+1. **Valid URL input** - Test with real product URLs
+2. **Invalid URL handling** - Test with random strings
+3. **Duplicate URL handling** - Same URL should create different short codes
+4. **Mobile redirection** - Use Chrome DevTools mobile emulation
+5. **Analytics tracking** - Verify clicks are recorded
+
+## 🚀 Deployment Checklist
+
+### Environment Variables (.env)
+```env
+# Backend
+NODE_ENV=production
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key_here
+FRONTEND_URL=https://your-frontend.vercel.app
+
+# Frontend
+NEXT_PUBLIC_API_URL=https://your-backend.vercel.app
+```
+
+### Vercel Deployment Steps
+1. Push code to GitHub
+2. Import project in Vercel
+3. Set environment variables
+4. Deploy (automatic on git push)
+
+## 🐛 Common Issues & Solutions
+
+### Issue 1: "Cannot connect to MongoDB"
+```javascript
+// Solution: Check connection string and whitelist IP in MongoDB Atlas
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).catch(err => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
+```
+
+### Issue 2: "CORS error in browser"
+```javascript
+// Solution: Add CORS middleware in backend
+const cors = require('cors');
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}));
+```
+
+### Issue 3: "Deep links not working"
+```javascript
+// Solution: Use fallback mechanism
+const redirectWithFallback = (res, primaryUrl, fallbackUrl) => {
+  // Use meta refresh as backup
+  res.send(`
+    <html>
+      <head>
+        <meta http-equiv="refresh" content="0; url=${fallbackUrl}">
+      </head>
+      <body>
+        <script>
+          window.location.href = "${primaryUrl}";
+          setTimeout(() => {
+            window.location.href = "${fallbackUrl}";
+          }, 1000);
+        </script>
+      </body>
+    </html>
+  `);
+};
+```
+
+## 📚 Learning Resources
+
+### For Complete Beginners
+1. **JavaScript Basics**: Start with `console.log()` debugging
+2. **API Testing**: Use Postman or Thunder Client (VS Code extension)
+3. **Database Viewing**: MongoDB Compass for visual database management
+4. **Error Reading**: Always read error messages from bottom to top
+
+### Useful AI Prompts for Cursor
+```markdown
+1. "Explain this error message and provide a fix: [paste error]"
+2. "Add error handling to this function: [paste code]"
+3. "Create a test for this feature: [describe feature]"
+4. "Optimize this code for better performance: [paste code]"
+5. "Add TypeScript types to this JavaScript code: [paste code]"
+```
+
+## 🎯 MVP Success Criteria
+
+Your MVP is complete when you can:
+1. ✅ Create a shortened link from any e-commerce URL
+2. ✅ Access the short link and get redirected correctly
+3. ✅ See click count increase in real-time
+4. ✅ View basic analytics (clicks, devices, time)
+5. ✅ Deploy to production (Vercel)
+
+## 💡 Pro Tips
+
+1. **Start Simple**: Get basic URL shortening working first, then add smart features
+2. **Use Console.log**: Debug everything - it's your best friend
+3. **Copy Working Code**: Find similar projects on GitHub and adapt
+4. **Ask Specific Questions**: "Why is req.body undefined?" is better than "It's not working"
+5. **Save Everything**: Use Git commits frequently with clear messages
+
+## 🆘 When Stuck
+
+If something isn't working:
+1. Check browser console (F12)
+2. Check server terminal for errors
+3. Verify MongoDB connection
+4. Test with Postman first
+5. Ask Cursor AI: "Debug this error: [paste full error message]"
+
+---
+
+**Remember**: Every developer started as a beginner. Don't be afraid to break things - that's how you learn! 🚀
