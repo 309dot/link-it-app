@@ -23,9 +23,10 @@ import {
   ContentPaste,
   AutoFixHigh,
 } from '@mui/icons-material';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { linkApi, type CreateLinkRequest, type LinkResponse } from '@/lib/api';
 import { extractUrlFromText, extractFromClipboard, isValidUrl } from '@/utils/urlExtractor';
+import LinkPreview from './LinkPreview';
 
 export default function LinkForm() {
   const [formData, setFormData] = useState<CreateLinkRequest>({
@@ -38,6 +39,66 @@ export default function LinkForm() {
   const [result, setResult] = useState<LinkResponse | null>(null);
   const [copied, setCopied] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  
+  // 링크 프리뷰 상태
+  const [preview, setPreview] = useState<any>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+
+  // 링크 프리뷰 가져오기 (디바운싱)
+  const fetchPreview = useCallback(async (url: string) => {
+    if (!url || !isValidUrl(url)) {
+      setPreview(null);
+      setPreviewError(null);
+      return;
+    }
+
+    setPreviewLoading(true);
+    setPreviewError(null);
+
+    try {
+      const response = await fetch('/api/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setPreview(data.data);
+        // 제목이 비어있으면 프리뷰에서 가져오기
+        if (!formData.title && data.data.title) {
+          setFormData(prev => ({ ...prev, title: data.data.title }));
+        }
+        // 설명이 비어있으면 프리뷰에서 가져오기
+        if (!formData.description && data.data.description) {
+          setFormData(prev => ({ ...prev, description: data.data.description }));
+        }
+      } else {
+        setPreviewError(data.error || '프리뷰를 가져올 수 없습니다');
+      }
+    } catch (error) {
+      console.error('프리뷰 가져오기 실패:', error);
+      setPreviewError('프리뷰를 가져올 수 없습니다');
+    }
+
+    setPreviewLoading(false);
+  }, [formData.title, formData.description]);
+
+  // URL 변경시 프리뷰 업데이트 (디바운싱)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (formData.originalUrl && isValidUrl(formData.originalUrl)) {
+        fetchPreview(formData.originalUrl);
+      } else {
+        setPreview(null);
+        setPreviewError(null);
+      }
+    }, 1000); // 1초 대기
+
+    return () => clearTimeout(timer);
+  }, [formData.originalUrl, fetchPreview]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
