@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { shortCode: string } }
+  context: { params: Promise<{ shortCode: string }> }
 ) {
-  const { shortCode } = params;
+  const { shortCode } = await context.params;
 
   try {
     console.log(`🔗 리디렉션 요청: ${shortCode}`);
