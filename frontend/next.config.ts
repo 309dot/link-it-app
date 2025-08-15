@@ -1,10 +1,10 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  output: 'export',  // 정적 파일 생성 (Railway 통합용)
+  // Vercel 배포용 - API Routes 지원
   trailingSlash: false,
   images: {
-    unoptimized: true,  // 정적 export에서 이미지 최적화 비활성화
+    unoptimized: false,  // Vercel에서 이미지 최적화 활성화
   },
 }
 
