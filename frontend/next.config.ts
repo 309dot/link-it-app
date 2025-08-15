@@ -13,6 +13,22 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false,
   },
   // Vercel 배포 최적화
+  
+  // Rewrites for shortCode redirection
+  async rewrites() {
+    return [
+      {
+        source: '/:shortCode',
+        destination: '/api/redirect/:shortCode',
+        has: [
+          {
+            type: 'host',
+            value: '(?!.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$).*'
+          }
+        ]
+      }
+    ]
+  },
 };
 
 export default nextConfig;
