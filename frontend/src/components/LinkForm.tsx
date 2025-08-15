@@ -12,15 +12,20 @@ import {
   Chip,
   InputAdornment,
   Collapse,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import {
   Link as LinkIcon,
   ContentCopy,
   CheckCircle,
   Launch,
+  ContentPaste,
+  AutoFixHigh,
 } from '@mui/icons-material';
 import { useState } from 'react';
 import { linkApi, type CreateLinkRequest, type LinkResponse } from '@/lib/api';
+import { extractUrlFromText, extractFromClipboard, isValidUrl } from '@/utils/urlExtractor';
 
 export default function LinkForm() {
   const [formData, setFormData] = useState<CreateLinkRequest>({
@@ -32,6 +37,7 @@ export default function LinkForm() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LinkResponse | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,10 +76,66 @@ export default function LinkForm() {
   const handleInputChange = (field: keyof CreateLinkRequest) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const value = e.target.value;
+    
+    // URL 필드에 입력할 때 자동으로 URL 추출 시도
+    if (field === 'originalUrl' && value.includes('http')) {
+      const extracted = extractUrlFromText(value);
+      if (extracted.url && extracted.url !== value) {
+        setFormData(prev => ({
+          ...prev,
+          originalUrl: extracted.url || '',
+          title: prev.title || extracted.title,
+          description: prev.description || extracted.description,
+        }));
+        return;
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [field]: e.target.value,
+      [field]: value,
     }));
+  };
+
+  // 클립보드에서 붙여넣기 및 URL 추출
+  const handlePasteFromClipboard = async () => {
+    setIsExtracting(true);
+    try {
+      const extracted = await extractFromClipboard();
+      if (extracted && extracted.url) {
+        setFormData(prev => ({
+          ...prev,
+          originalUrl: extracted.url || '',
+          title: prev.title || extracted.title,
+          description: prev.description || extracted.description,
+        }));
+        setError(null);
+      } else {
+        setError('클립보드에서 유효한 URL을 찾을 수 없습니다.');
+      }
+    } catch {
+      setError('클립보드 읽기에 실패했습니다.');
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
+  // URL 필드 붙여넣기 이벤트 처리
+  const handleUrlPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasteData = e.clipboardData.getData('text');
+    if (pasteData.includes('http')) {
+      e.preventDefault();
+      const extracted = extractUrlFromText(pasteData);
+      if (extracted.url) {
+        setFormData(prev => ({
+          ...prev,
+          originalUrl: extracted.url || '',
+          title: prev.title || extracted.title,
+          description: prev.description || extracted.description,
+        }));
+      }
+    }
   };
 
   return (
@@ -89,22 +151,64 @@ export default function LinkForm() {
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label="상품 URL"
-              placeholder="https://www.coupang.com/products/123456"
-              value={formData.originalUrl}
-              onChange={handleInputChange('originalUrl')}
-              required
-              fullWidth
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LinkIcon />
-                  </InputAdornment>
-                ),
-              }}
-              helperText="쿠팡, 네이버쇼핑, 11번가, G마켓, 옥션 등의 상품 URL을 지원합니다."
-            />
+            <Box sx={{ position: 'relative' }}>
+              <TextField
+                label="상품 URL"
+                placeholder="URL을 입력하거나 '쿠팡을 추천합니다! 상품명 https://link.coupang.com/a/xxx' 같은 텍스트를 붙여넣으세요"
+                value={formData.originalUrl}
+                onChange={handleInputChange('originalUrl')}
+                onPaste={handleUrlPaste}
+                required
+                fullWidth
+                multiline
+                maxRows={3}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LinkIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Tooltip title="클립보드에서 URL 자동 추출">
+                        <IconButton
+                          onClick={handlePasteFromClipboard}
+                          disabled={isExtracting}
+                          size="small"
+                        >
+                          {isExtracting ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <ContentPaste />
+                          )}
+                        </IconButton>
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                }}
+                helperText={
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      💡 <strong>팁:</strong> &ldquo;쿠팡을 추천합니다! 상품명 https://link.coupang.com/a/xxx&rdquo; 같은 텍스트를 붙여넣으면 URL만 자동으로 추출됩니다.
+                    </Typography>
+                    <br />
+                    <Typography variant="caption" color="text.secondary">
+                      지원: 쿠팡, 네이버쇼핑, 11번가, G마켓, 옥션
+                    </Typography>
+                  </Box>
+                }
+              />
+              
+              {/* URL 추출 성공 표시 */}
+              {formData.originalUrl && isValidUrl(formData.originalUrl) && (
+                <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <AutoFixHigh sx={{ color: 'success.main', fontSize: 16 }} />
+                  <Typography variant="caption" color="success.main">
+                    URL이 자동으로 추출되었습니다!
+                  </Typography>
+                </Box>
+              )}
+            </Box>
 
             <TextField
               label="제목 (선택사항)"

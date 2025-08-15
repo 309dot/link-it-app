@@ -141,6 +141,44 @@ function generateShortCode() {
 }
 
 /**
+ * 텍스트에서 URL 추출
+ * @param {string} text - 분석할 텍스트
+ * @returns {string|null} 추출된 URL
+ */
+function extractUrlFromText(text) {
+  // URL 패턴 정규식
+  const urlPattern = /https?:\/\/[^\s]+/gi;
+  
+  // 지원하는 쇼핑몰 도메인
+  const supportedDomains = [
+    'coupang.com',
+    'link.coupang.com', 
+    'shopping.naver.com',
+    'smartstore.naver.com',
+    '11st.co.kr',
+    'gmarket.co.kr',
+    'auction.co.kr'
+  ];
+  
+  // URL 패턴 찾기
+  const urls = text.match(urlPattern);
+  
+  if (!urls || urls.length === 0) {
+    return null;
+  }
+  
+  // 지원하는 도메인의 URL 우선 선택
+  for (const url of urls) {
+    if (supportedDomains.some(domain => url.includes(domain))) {
+      return url.trim();
+    }
+  }
+  
+  // 지원 도메인이 없으면 첫 번째 URL 사용
+  return urls[0].trim();
+}
+
+/**
  * URL 유효성 검사
  * @param {string} url - 검사할 URL
  * @returns {boolean} 유효성 여부
@@ -154,11 +192,34 @@ function isValidUrl(url) {
   }
 }
 
+/**
+ * 텍스트에서 제목 추출 (URL 제거 후)
+ * @param {string} text - 원본 텍스트
+ * @param {string} extractedUrl - 추출된 URL
+ * @returns {string} 제목
+ */
+function extractTitleFromText(text, extractedUrl) {
+  if (!extractedUrl) return '';
+  
+  // URL을 제거한 깨끗한 텍스트
+  const cleanText = text.replace(/https?:\/\/[^\s]+/gi, '').trim();
+  
+  // 특수 문자 제거 및 정리
+  const title = cleanText
+    .replace(/[!?.]$/, '') // 끝의 특수문자 제거
+    .replace(/\s+/g, ' ') // 다중 공백 정리
+    .trim();
+    
+  return title.length > 100 ? title.substring(0, 100) + '...' : title;
+}
+
 module.exports = {
   detectPlatform,
   extractProductId,
   generateDeepLinks,
   generateShortCode,
   isValidUrl,
+  extractUrlFromText,
+  extractTitleFromText,
   PLATFORM_PATTERNS
 };

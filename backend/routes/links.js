@@ -5,7 +5,9 @@ const {
   detectPlatform, 
   generateDeepLinks, 
   generateShortCode, 
-  isValidUrl 
+  isValidUrl,
+  extractUrlFromText,
+  extractTitleFromText
 } = require('../utils/urlParser');
 
 /**
@@ -88,19 +90,35 @@ router.post('/', async (req, res) => {
   try {
     const { originalUrl, title, description } = req.body;
     
-    // URL 유효성 검사
-    if (!originalUrl || !isValidUrl(originalUrl)) {
+    // 입력값에서 URL 추출 시도
+    let finalUrl = originalUrl;
+    let finalTitle = title;
+    
+    // originalUrl이 URL이 아닌 텍스트인 경우 URL 추출
+    if (originalUrl && !isValidUrl(originalUrl)) {
+      const extractedUrl = extractUrlFromText(originalUrl);
+      if (extractedUrl && isValidUrl(extractedUrl)) {
+        finalUrl = extractedUrl;
+        // 제목이 없으면 텍스트에서 추출
+        if (!finalTitle) {
+          finalTitle = extractTitleFromText(originalUrl, extractedUrl);
+        }
+      }
+    }
+    
+    // 최종 URL 유효성 검사
+    if (!finalUrl || !isValidUrl(finalUrl)) {
       return res.status(400).json({
         success: false,
-        error: '유효한 URL을 입력해주세요.'
+        error: '유효한 URL을 입력해주세요. 텍스트에 URL이 포함되어 있는지 확인해주세요.'
       });
     }
     
     // 플랫폼 감지
-    const platform = detectPlatform(originalUrl);
+    const platform = detectPlatform(finalUrl);
     
     // 딥링크 URL 생성
-    const { iosUrl, androidUrl } = generateDeepLinks(originalUrl, platform);
+    const { iosUrl, androidUrl } = generateDeepLinks(finalUrl, platform);
     
     // 고유한 단축 코드 생성 (중복 체크)
     let shortCode;
@@ -126,11 +144,11 @@ router.post('/', async (req, res) => {
     // 새 링크 생성
     const newLink = new Link({
       shortCode,
-      originalUrl,
+      originalUrl: finalUrl,
       iosUrl,
       androidUrl,
       platform,
-      title,
+      title: finalTitle,
       description
     });
     
@@ -147,7 +165,15 @@ router.post('/', async (req, res) => {
       platform: newLink.platform,
       title: newLink.title,
       description: newLink.description,
-      createdAt: newLink.createdAt
+      createdAt: newLink.createdAt,
+      // 디버그 정보 (개발용)
+      ...(process.env.NODE_ENV === 'development' && {
+        debug: {
+          inputUrl: originalUrl,
+          extractedUrl: finalUrl,
+          extractedTitle: finalTitle
+        }
+      })
     };
     
     res.status(201).json({
