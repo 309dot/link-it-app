@@ -2,15 +2,21 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 미들웨어
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,  // Next.js 정적 파일을 위해
+}));
 app.use(cors());
 app.use(express.json());
+
+// 정적 파일 서빙 (Next.js 빌드 결과물)
+app.use(express.static(path.join(__dirname, '../frontend/out')));
 
 // MongoDB 연결
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://jing309:Elrhs4113@cluster0.eyfjgmh.mongodb.net/sample_mflix?retryWrites=true&w=majority&appName=Cluster0';
@@ -199,10 +205,21 @@ app.get('/:shortCode', async (req, res) => {
   }
 });
 
+// Next.js 라우팅을 위한 catch-all (SPA fallback)
+app.get('*', (req, res) => {
+  // API 라우트나 리디렉션이 아닌 경우에만 index.html 서빙
+  if (!req.path.startsWith('/api') && !req.path.match(/^\/[a-zA-Z0-9]{6}$/)) {
+    res.sendFile(path.join(__dirname, '../frontend/out/index.html'));
+  } else {
+    res.status(404).json({ error: 'Not found' });
+  }
+});
+
 // 서버 시작
 app.listen(PORT, () => {
-  console.log(`🚀 서버가 포트 ${PORT}에서 실행 중입니다.`);
+  console.log(`🚀 Railway 통합 서버가 포트 ${PORT}에서 실행 중입니다.`);
   console.log(`📍 URL: http://localhost:${PORT}`);
+  console.log(`🎯 프론트엔드 + 백엔드 + 리디렉션 모두 통합!`);
 });
 
 module.exports = app;

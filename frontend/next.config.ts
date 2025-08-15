@@ -1,29 +1,12 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+  output: 'export',  // 정적 파일 생성
+  trailingSlash: true,
+  images: {
+    unoptimized: true,  // 정적 export에서 이미지 최적화 비활성화
   },
-  // 빌드 에러 방지
-  typescript: {
-    ignoreBuildErrors: false,
-  },
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
-  // Vercel 배포 최적화
-  trailingSlash: false,
-  
-  // vercel.json으로 이동하여 제거
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: '/:shortCode',
-  //       destination: '/api/r/:shortCode'
-  //     }
-  //   ]
-  // },
-};
+  // basePath를 제거하여 Railway에서 루트 경로로 서빙
+}
 
-export default nextConfig;
+export default nextConfig
