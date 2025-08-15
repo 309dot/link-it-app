@@ -29,9 +29,9 @@ export default function RedirectPage() {
         const response = await fetch(`/api/links`);
         const data = await response.json();
         
-        if (data.success && data.links) {
+        if (data.success && data.data) {
           // mockLinksStore에서 shortCode 찾기
-          const link = data.links.find((l: any) => l.shortCode === shortCode);
+          const link = data.data.find((l: any) => l.shortCode === shortCode);
           
           if (link) {
             console.log(`✅ 링크 발견: ${shortCode} → ${link.originalUrl}`);
