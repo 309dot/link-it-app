@@ -8,6 +8,9 @@ import {
   extractTitleFromText
 } from '@/lib/utils/urlParser';
 
+// 메모리에 생성된 링크 저장 (간단한 인메모리 저장소)
+const mockLinksStore: Record<string, any> = {};
+
 // POST /api/links - 새 링크 생성
 export async function POST(request: NextRequest) {
   try {
@@ -65,6 +68,10 @@ export async function POST(request: NextRequest) {
       shortUrl: `https://link-it-app.vercel.app/${mockShortCode}`
     };
     
+    // 인메모리 저장소에 저장
+    mockLinksStore[mockShortCode] = mockLink;
+    console.log(`💾 링크 저장됨: ${mockShortCode} → ${finalUrl}`);
+    
     return NextResponse.json({
       success: true,
       data: mockLink,
@@ -99,8 +106,8 @@ export async function GET() {
   try {
     console.log('🎯 GET 요청 - 목업 데이터 반환');
     
-    // 목업 링크 데이터
-    const mockLinks = [
+    // 기본 목업 링크 데이터
+    const defaultMockLinks = [
       {
         _id: 'mock_1',
         shortCode: 'demo1',
@@ -124,6 +131,15 @@ export async function GET() {
         shortUrl: 'https://link-it-app.vercel.app/demo2'
       }
     ];
+
+    // 저장된 링크들과 기본 링크들 합치기
+    const allLinks = [
+      ...defaultMockLinks,
+      ...Object.values(mockLinksStore)
+    ];
+
+    console.log(`📋 총 ${allLinks.length}개 링크 반환 (저장된 링크: ${Object.keys(mockLinksStore).length}개)`);
+    const mockLinks = allLinks;
 
     return NextResponse.json({
       success: true,
