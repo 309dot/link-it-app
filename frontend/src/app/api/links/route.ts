@@ -15,21 +15,9 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔧 API 호출 시작');
     
-    // MongoDB 연결 테스트
-    let useDatabase = false;
-    try {
-      await Promise.race([
-        connectDB(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('DB 연결 시간 초과')), 5000)
-        )
-      ]);
-      useDatabase = true;
-      console.log('✅ MongoDB 연결 성공 - sample_mflix 데이터베이스');
-    } catch (dbError) {
-      console.warn('⚠️ MongoDB 연결 실패, 목업 모드로 진행:', (dbError as Error).message);
-      useDatabase = false;
-    }
+    // MongoDB 완전 비활성화 - 목업 모드만 사용
+    const useDatabase = false;
+    console.log('🎯 목업 모드 전용 - MongoDB 완전 비활성화');
 
     const body = await request.json();
     const { originalUrl, title, description } = body;
@@ -158,16 +146,42 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/links - 링크 목록 조회
+// GET /api/links - 링크 목록 조회 (목업 모드)
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔥 MongoDB 연결 시도...');
-    await Promise.race([
-      connectDB(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('연결 시간 초과')), 5000)
-      )
-    ]);
+    console.log('🎯 GET 요청 - 목업 데이터 반환');
+    
+    // 목업 링크 데이터
+    const mockLinks = [
+      {
+        _id: 'mock_1',
+        shortCode: 'demo1',
+        originalUrl: 'https://www.coupang.com/example1',
+        title: '테스트 링크 1',
+        description: '데모용 링크입니다',
+        platform: 'coupang',
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        analytics: { totalClicks: 15 },
+        shortUrl: 'https://link-it-app.vercel.app/demo1'
+      },
+      {
+        _id: 'mock_2', 
+        shortCode: 'demo2',
+        originalUrl: 'https://shopping.naver.com/example2',
+        title: '테스트 링크 2',
+        description: '데모용 링크입니다',
+        platform: 'naver',
+        createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+        analytics: { totalClicks: 7 },
+        shortUrl: 'https://link-it-app.vercel.app/demo2'
+      }
+    ];
+
+    return NextResponse.json({
+      success: true,
+      data: mockLinks,
+      message: '🎯 목업 데이터 - 실제 저장되지 않음'
+    });
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
