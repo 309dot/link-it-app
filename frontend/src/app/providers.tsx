@@ -64,25 +64,6 @@ interface ProvidersProps {
 }
 
 export default function Providers({ children }: ProvidersProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Hydration 에러 방지
-  if (!mounted) {
-    return (
-      <div style={{ 
-        padding: '20px', 
-        textAlign: 'center', 
-        fontFamily: 'Arial, sans-serif' 
-      }}>
-        <h1>🚀 Link-It 로딩중...</h1>
-      </div>
-    );
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
