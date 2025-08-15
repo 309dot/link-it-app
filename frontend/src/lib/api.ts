@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API 기본 설정 (Next.js API Routes - 상대경로만 사용)
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'https://link-it-app-production.up.railway.app/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Railway 리디렉션 테스트</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container { 
+            background: rgba(255,255,255,0.1); 
+            padding: 40px; 
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        .test-link { 
+            display: inline-block; 
+            padding: 15px 30px; 
+            background: #ff6b6b; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            margin: 15px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+        }
+        .test-link:hover { 
+            background: #ff5252; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+        }
+        .url-input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+        .info-box {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Railway 리디렉션 테스트</h1>
+        <p style="font-size: 18px; margin-bottom: 30px;">Railway URL을 입력하고 리디렉션을 테스트하세요!</p>
+        
+        <input type="text" id="railwayUrl" class="url-input" 
+               placeholder="Railway URL을 입력하세요 (예: https://your-app.railway.app)"
+               value="">
+        
+        <div style="margin: 30px 0;">
+            <button onclick="testDemo1()" class="test-link">
+                Demo1 테스트 (→ 쿠팡)
+            </button>
+            <button onclick="testDemo2()" class="test-link">
+                Demo2 테스트 (→ 네이버)
+            </button>
+            <button onclick="testApi()" class="test-link">
+                API 테스트
+            </button>
+        </div>
+        
+        <div class="info-box">
+            <h3>🎯 테스트 방법:</h3>
+            <ol style="text-align: left;">
+                <li>Railway 대시보드에서 URL 복사</li>
+                <li>위 입력창에 URL 붙여넣기</li>
+                <li>테스트 버튼 클릭</li>
+                <li>자동 리디렉션 확인</li>
+            </ol>
+        </div>
+        
+        <div class="info-box">
+            <h3>✅ 성공 기준:</h3>
+            <ul style="text-align: left;">
+                <li><strong>Demo1:</strong> 쿠팡 사이트로 즉시 이동</li>
+                <li><strong>Demo2:</strong> 네이버쇼핑으로 즉시 이동</li>
+                <li><strong>API:</strong> JSON 응답 표시</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function getBaseUrl() {
+            const url = document.getElementById('railwayUrl').value.trim();
+            if (!url) {
+                alert('Railway URL을 먼저 입력해주세요!');
+                return null;
+            }
+            return url.endsWith('/') ? url.slice(0, -1) : url;
+        }
+        
+        function testDemo1() {
+            const baseUrl = getBaseUrl();
+            if (baseUrl) {
+                console.log('🔗 Demo1 테스트:', baseUrl + '/demo1');
+                window.open(baseUrl + '/demo1', '_blank');
+            }
+        }
+        
+        function testDemo2() {
+            const baseUrl = getBaseUrl();
+            if (baseUrl) {
+                console.log('🔗 Demo2 테스트:', baseUrl + '/demo2');
+                window.open(baseUrl + '/demo2', '_blank');
+            }
+        }
+        
+        function testApi() {
+            const baseUrl = getBaseUrl();
+            if (baseUrl) {
+                console.log('🔗 API 테스트:', baseUrl + '/api/links');
+                window.open(baseUrl + '/api/links', '_blank');
+            }
+        }
+        
+        // 자동으로 일반적인 Railway URL 패턴 제안
+        window.onload = function() {
+            document.getElementById('railwayUrl').placeholder = 
+                '예: https://link-it-app-production-xxxx.up.railway.app';
+        }
+    </script>
+</body>
+</html>
