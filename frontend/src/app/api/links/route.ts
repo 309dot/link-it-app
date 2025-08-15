@@ -15,12 +15,20 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔧 API 호출 시작');
     
-    // MongoDB 연결 시도 (실패해도 계속 진행)
+    // MongoDB 연결 시도 (실패시 즉시 목업 응답)
+    let useDatabase = false;
     try {
-      await connectDB();
+      await Promise.race([
+        connectDB(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('DB 연결 시간 초과')), 3000)
+        )
+      ]);
+      useDatabase = true;
+      console.log('✅ MongoDB 연결 성공');
     } catch (dbError) {
-      console.warn('⚠️ MongoDB 연결 실패, 임시 데이터 사용:', (dbError as Error).message);
-      // 연결 실패해도 계속 진행
+      console.warn('⚠️ MongoDB 연결 실패, 목업 모드로 진행:', (dbError as Error).message);
+      useDatabase = false;
     }
 
     const body = await request.json();
