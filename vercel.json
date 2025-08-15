@@ -2,19 +2,5 @@
   "buildCommand": "npm install && npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
-  "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/demo1",
-      "destination": "/api/redirect/demo1"
-    },
-    {
-      "source": "/demo2", 
-      "destination": "/api/redirect/demo2"
-    },
-    {
-      "source": "/([a-zA-Z0-9]{6})",
-      "destination": "/api/redirect/$1"
-    }
-  ]
+  "framework": "nextjs"
 }
