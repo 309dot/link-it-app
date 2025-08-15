@@ -13,6 +13,12 @@ import {
 // POST /api/links - 새 링크 생성
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔧 API 호출 시작 - 환경 정보:', {
+      NODE_ENV: process.env.NODE_ENV,
+      hasMongoURI: !!process.env.MONGODB_URI,
+      timestamp: new Date().toISOString()
+    });
+    
     await connectDB();
 
     const body = await request.json();
@@ -118,11 +124,26 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
     
   } catch (error) {
-    console.error('링크 생성 오류:', error);
+    console.error('❌ 링크 생성 오류:', error);
+    console.error('에러 세부정보:', {
+      message: (error as Error).message,
+      stack: (error as Error).stack,
+      env: {
+        NODE_ENV: process.env.NODE_ENV,
+        hasMongoURI: !!process.env.MONGODB_URI,
+        mongoUriStart: process.env.MONGODB_URI?.substring(0, 20) + '...',
+      }
+    });
+    
     return NextResponse.json({
       success: false,
       error: '서버 내부 오류가 발생했습니다.',
-      ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
+      details: (error as Error).message,
+      debug: {
+        timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV,
+        hasMongoURI: !!process.env.MONGODB_URI
+      }
     }, { status: 500 });
   }
 }

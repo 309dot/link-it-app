@@ -25,7 +25,13 @@ if (!cached) {
 async function connectDB(): Promise<typeof mongoose> {
   // 환경변수가 없으면 에러 발생
   if (!MONGODB_URI) {
-    throw new Error('MONGODB_URI 환경변수가 설정되지 않았습니다. MongoDB Atlas 연결 정보를 확인해주세요.');
+    console.error('❌ MONGODB_URI 환경변수가 설정되지 않았습니다.');
+    console.error('Vercel 환경변수 확인 필요:', {
+      NODE_ENV: process.env.NODE_ENV,
+      hasMongoURI: !!process.env.MONGODB_URI,
+      envKeys: Object.keys(process.env).filter(key => key.includes('MONGO')),
+    });
+    throw new Error('MONGODB_URI 환경변수가 설정되지 않았습니다. Vercel 대시보드에서 환경변수를 확인해주세요.');
   }
 
   if (cached!.conn) {
