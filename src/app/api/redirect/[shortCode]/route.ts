@@ -9,10 +9,10 @@ export async function GET(
   try {
     console.log(`🔗 리디렉션 요청: ${shortCode}`);
 
-    // 데모 링크 처리
+    // 데모 링크 처리 (실제 모바일 친화적 URL)
     const demoLinks: Record<string, string> = {
-      'demo1': 'https://www.coupang.com',
-      'demo2': 'https://shopping.naver.com'
+      'demo1': 'https://m.coupang.com',
+      'demo2': 'https://m.shopping.naver.com'
     };
 
     if (demoLinks[shortCode]) {
@@ -38,18 +38,20 @@ export async function GET(
           const isAndroid = /Android/.test(userAgent);
           const isInAppBrowser = /FBAN|FBAV|Instagram|Line|KakaoTalk/.test(userAgent);
           
-          // 스마트 리디렉션 로직
+          // 스마트 리디렉션 로직 (모바일 웹 최적화)
           let redirectUrl = link.originalUrl;
           
-          if (isInAppBrowser) {
-            // 인앱 브라우저에서는 웹 URL 사용
-            redirectUrl = link.originalUrl;
-          } else if (isIOS && link.iosUrl) {
-            // iOS 앱 딥링크
-            redirectUrl = link.iosUrl;
-          } else if (isAndroid && link.androidUrl) {
-            // Android 앱 딥링크  
-            redirectUrl = link.androidUrl;
+          // 모바일 디바이스면 모바일 버전으로 변경
+          if (isMobile || isIOS || isAndroid) {
+            // 쿠팡 URL을 모바일 버전으로 변경
+            if (redirectUrl.includes('coupang.com')) {
+              redirectUrl = redirectUrl.replace('www.coupang.com', 'm.coupang.com');
+              redirectUrl = redirectUrl.replace('coupang.com', 'm.coupang.com');
+            }
+            // 네이버쇼핑 URL을 모바일 버전으로 변경  
+            else if (redirectUrl.includes('shopping.naver.com')) {
+              redirectUrl = redirectUrl.replace('shopping.naver.com', 'm.shopping.naver.com');
+            }
           }
           
           console.log(`📱 디바이스 감지: iOS=${isIOS}, Android=${isAndroid}, 최종 URL=${redirectUrl}`);
