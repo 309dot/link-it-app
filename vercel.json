@@ -1,20 +1,8 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/dashboard/(.*)",
-      "destination": "/dashboard/$1"
-    },
-    {
-      "source": "/_next/(.*)",
-      "destination": "/_next/$1"
-    },
-    {
-      "source": "/(?!api|dashboard|_next)([^.]+)",
-      "destination": "/api/links/$1"
-    }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/dashboard/(.*)", "dest": "/dashboard/$1" },
+    { "src": "/_next/(.*)", "dest": "/_next/$1" },
+    { "src": "/([^.]+)", "dest": "/$1" }
   ]
 }
