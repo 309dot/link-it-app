@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
         destination: '/api/redirect/demo2',
       },
       {
-        source: '/:shortCode(\\w{6})',
+        source: '/:shortCode(\\w{4,6})',
         destination: '/api/redirect/:shortCode',
       },
     ]
