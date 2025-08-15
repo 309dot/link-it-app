@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const MONGODB_URI = 'mongodb+srv://jing309:Elrhs4113@cluster0.eyfjgmh.mongodb.net/linkitdb?retryWrites=true&w=majority&appName=Cluster0';
+console.log('🔥 MONGODB_URI 강제 설정:', !!MONGODB_URI);
 
 if (!MONGODB_URI && process.env.NODE_ENV !== 'development') {
   console.warn('⚠️ MONGODB_URI 환경변수가 설정되지 않았습니다.');
@@ -23,10 +24,8 @@ if (!cached) {
 }
 
 async function connectDB(): Promise<typeof mongoose> {
-  // 일단 연결 시도하되, 실패해도 에러 던지지 않기
-  if (!MONGODB_URI) {
-    console.warn('⚠️ MongoDB URI가 없습니다.');
-    return mongoose; // 빈 mongoose 반환
+  // 강제로 연결 시도
+  console.log('🔥 MongoDB 연결 강제 시도...');
   }
 
   if (cached!.conn) {
