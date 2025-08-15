@@ -14,7 +14,7 @@
     },
     {
       "source": "/(?!api|dashboard|_next)([^.]+)",
-      "destination": "/api/r/$1"
+      "destination": "/api/links/$1"
     }
   ]
 }
