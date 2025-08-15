@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API 기본 설정 (Next.js API Routes 사용)
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+// API 기본 설정 (Next.js API Routes - 상대경로만 사용)
+const API_BASE_URL = '/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -9,6 +9,8 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // HTTPS 환경에서 안전한 요청 보장
+  withCredentials: false,
 });
 
 // 응답 인터셉터 (에러 처리)
