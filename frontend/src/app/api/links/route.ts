@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       description: description || '',
       createdAt: new Date().toISOString(),
       analytics: { totalClicks: 0 },
-                 shortUrl: `https://link-it-app.vercel.app/redirect?code=${mockShortCode}`
+                 shortUrl: `https://link-it-app.vercel.app/?code=${mockShortCode}`
     };
     
     // 인메모리 저장소에 저장
@@ -117,7 +117,7 @@ export async function GET() {
         platform: 'coupang',
         createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
         analytics: { totalClicks: 15 },
-                     shortUrl: 'https://link-it-app.vercel.app/redirect?code=demo1'
+                     shortUrl: 'https://link-it-app.vercel.app/?code=demo1'
       },
       {
         _id: 'mock_2', 
@@ -128,7 +128,7 @@ export async function GET() {
         platform: 'naver',
         createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
         analytics: { totalClicks: 7 },
-                     shortUrl: 'https://link-it-app.vercel.app/redirect?code=demo2'
+                     shortUrl: 'https://link-it-app.vercel.app/?code=demo2'
       }
     ];
 
