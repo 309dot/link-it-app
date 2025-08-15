@@ -19,11 +19,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/:shortCode',
-        destination: '/api/redirect/:shortCode',
-        // API, _next, dashboard 등은 제외
-        missing: [
-          { type: 'header', key: 'next-router-prefetch' },
-        ]
+        destination: '/api/r/:shortCode'
       }
     ]
   },
