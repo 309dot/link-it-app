@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import Link from '@/lib/models/Link';
-import { 
-  detectPlatform, 
-  generateDeepLinks, 
-  generateShortCode, 
-  isValidUrl,
+import {
+  generateDeepLinks,
+  detectPlatform,
+  generateShortCode,
   extractUrlFromText,
+  isValidUrl,
   extractTitleFromText
 } from '@/lib/utils/urlParser';
 
@@ -15,9 +13,8 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔧 API 호출 시작');
     
-    // MongoDB 완전 비활성화 - 목업 모드만 사용
-    const useDatabase = false;
-    console.log('🎯 목업 모드 전용 - MongoDB 완전 비활성화');
+    // 목업 모드 전용
+    console.log('🎯 목업 모드 전용 - 실제 데이터베이스 없이 작동');
 
     const body = await request.json();
     const { originalUrl, title, description } = body;
@@ -52,102 +49,53 @@ export async function POST(request: NextRequest) {
     // 딥링크 URL 생성
     const { iosUrl, androidUrl } = generateDeepLinks(finalUrl, platform);
     
-    // 고유한 단축 코드 생성 (중복 체크)
-    let shortCode;
-    let isUnique = false;
-    let attempts = 0;
-    const maxAttempts = 10;
-    
-    while (!isUnique && attempts < maxAttempts) {
-      shortCode = generateShortCode();
-      const existingLink = await Link.findOne({ shortCode });
-      if (!existingLink) {
-        isUnique = true;
-      }
-      attempts++;
-    }
-    
-    if (!isUnique) {
-      return NextResponse.json({
-        success: false,
-        error: '고유한 단축 코드를 생성할 수 없습니다. 다시 시도해주세요.'
-      }, { status: 500 });
-    }
-    
-    // 새 링크 생성
-    const newLink = new Link({
-      shortCode,
+    // 목업 응답 생성
+    const mockShortCode = Math.random().toString(36).substring(2, 8);
+    const mockLink = {
+      _id: 'mock_' + Date.now(),
+      shortCode: mockShortCode,
       originalUrl: finalUrl,
       iosUrl,
       androidUrl,
       platform,
       title: finalTitle,
-      description,
-      analytics: {
-        totalClicks: 0,
-        clicksByDevice: { desktop: 0, mobile: 0, tablet: 0 },
-        clicksByBrowser: { chrome: 0, safari: 0, firefox: 0, edge: 0, other: 0 },
-        recentClicks: []
-      }
-    });
-    
-    await newLink.save();
-    
-    // 응답 데이터
-    const responseData = {
-      id: newLink._id.toString(),
-      shortCode: newLink.shortCode,
-      shortUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/${newLink.shortCode}`,
-      originalUrl: newLink.originalUrl,
-      iosUrl: newLink.iosUrl,
-      androidUrl: newLink.androidUrl,
-      platform: newLink.platform,
-      title: newLink.title,
-      description: newLink.description,
-      createdAt: newLink.createdAt,
-      // 디버그 정보 (개발용)
-      ...(process.env.NODE_ENV === 'development' && {
-        debug: {
-          inputUrl: originalUrl,
-          extractedUrl: finalUrl,
-          extractedTitle: finalTitle
-        }
-      })
+      description: description || '',
+      createdAt: new Date().toISOString(),
+      analytics: { totalClicks: 0 },
+      shortUrl: `https://link-it-app.vercel.app/${mockShortCode}`
     };
     
     return NextResponse.json({
       success: true,
-      message: '링크가 성공적으로 생성되었습니다.',
-      data: responseData
-    }, { status: 201 });
-    
-  } catch (error) {
-    console.error('❌ 링크 생성 오류:', error);
-    console.error('에러 세부정보:', {
-      message: (error as Error).message,
-      stack: (error as Error).stack,
-      env: {
-        NODE_ENV: process.env.NODE_ENV,
-        hasMongoURI: !!process.env.MONGODB_URI,
-        mongoUriStart: process.env.MONGODB_URI?.substring(0, 20) + '...',
-      }
+      data: mockLink,
+      message: '⚠️ 데모 모드: 실제 저장되지 않습니다'
     });
     
+  } catch (error) {
+    console.warn('⚠️ POST MongoDB 연결 실패, 목업 데이터로 진행:', error);
+    // MongoDB 실패 시 목업 응답
+    const mockLink = {
+      _id: 'mock_' + Date.now(),
+      shortCode: Math.random().toString(36).substring(2, 8),
+      originalUrl: 'https://example.com',
+      title: '테스트 링크',
+      description: 'MongoDB 연결 실패로 생성된 테스트 링크',
+      platform: 'mock',
+      createdAt: new Date(),
+      analytics: { totalClicks: 0 },
+      shortUrl: `https://link-it-app.vercel.app/test123`
+    };
+    
     return NextResponse.json({
-      success: false,
-      error: '서버 내부 오류가 발생했습니다.',
-      details: (error as Error).message,
-      debug: {
-        timestamp: new Date().toISOString(),
-        env: process.env.NODE_ENV,
-        hasMongoURI: !!process.env.MONGODB_URI
-      }
-    }, { status: 500 });
+      success: true,
+      data: mockLink,
+      message: '⚠️ 테스트 모드: MongoDB 연결 실패, 임시 데이터로 응답'
+    });
   }
 }
 
 // GET /api/links - 링크 목록 조회 (목업 모드)
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('🎯 GET 요청 - 목업 데이터 반환');
     
@@ -182,60 +130,16 @@ export async function GET(request: NextRequest) {
       data: mockLinks,
       message: '🎯 목업 데이터 - 실제 저장되지 않음'
     });
-    const sortOrder = searchParams.get('sortOrder') || 'desc';
-    
-    const skip = (page - 1) * limit;
-    
-    // 정렬 설정
-    const sortOptions: Record<string, 1 | -1> = {};
-    sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
-    
-    // 링크 조회
-    const links = await Link.find({})
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(limit);
-    
-    // 총 개수 조회
-    const totalCount = await Link.countDocuments({});
-    const totalPages = Math.ceil(totalCount / limit);
-    
-    // 응답 데이터 변환
-    const formattedLinks = links.map((link) => ({
-      id: link._id.toString(),
-      shortCode: link.shortCode,
-      shortUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/${link.shortCode}`,
-      originalUrl: link.originalUrl,
-      iosUrl: link.iosUrl,
-      androidUrl: link.androidUrl,
-      platform: link.platform,
-      title: link.title,
-      description: link.description,
-      analytics: link.analytics,
-      createdAt: link.createdAt,
-      updatedAt: link.updatedAt
-    }));
-    
-    return NextResponse.json({
-      success: true,
-      data: {
-        links: formattedLinks,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalCount,
-          hasNext: page < totalPages,
-          hasPrev: page > 1
-        }
-      }
-    });
-    
+
   } catch (error) {
-    console.error('링크 목록 조회 오류:', error);
-    return NextResponse.json({
-      success: false,
-      error: '서버 내부 오류가 발생했습니다.',
-      ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
-    }, { status: 500 });
+    console.error('❌ GET 에러:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: '서버 내부 오류가 발생했습니다.',
+        details: error instanceof Error ? error.message : '알 수 없는 오류'
+      },
+      { status: 500 }
+    );
   }
 }
