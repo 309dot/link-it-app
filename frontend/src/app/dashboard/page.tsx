@@ -3,7 +3,6 @@
 import {
   Container,
   Typography,
-  Grid,
   Card,
   CardContent,
   Box,
@@ -21,7 +20,6 @@ import {
   LinearProgress,
 } from '@mui/material';
 import {
-  Visibility,
   ContentCopy,
   Launch,
   Smartphone,
@@ -48,8 +46,9 @@ export default function Dashboard() {
       setLoading(true);
       const response = await linkApi.getAll(1, 20);
       setLinks(response.links);
-    } catch (err: any) {
-      setError(err.response?.data?.error || '데이터를 불러오는데 실패했습니다.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || '데이터를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -122,79 +121,78 @@ export default function Dashboard() {
         )}
 
         {/* 통계 카드들 */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Analytics sx={{ mr: 2, color: 'primary.main' }} />
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold">
-                      {stats.totalClicks}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      총 클릭 수
-                    </Typography>
-                  </Box>
+        <Box 
+          sx={{ 
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr 1fr' },
+            gap: 3,
+            mb: 4 
+          }}
+        >
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Analytics sx={{ mr: 2, color: 'primary.main' }} />
+                <Box>
+                  <Typography variant="h4" fontWeight="bold">
+                    {stats.totalClicks}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    총 클릭 수
+                  </Typography>
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <TrendingUp sx={{ mr: 2, color: 'success.main' }} />
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold">
-                      {stats.totalLinks}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      생성된 링크
-                    </Typography>
-                  </Box>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <TrendingUp sx={{ mr: 2, color: 'success.main' }} />
+                <Box>
+                  <Typography variant="h4" fontWeight="bold">
+                    {stats.totalLinks}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    생성된 링크
+                  </Typography>
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Smartphone sx={{ mr: 2, color: 'warning.main' }} />
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold">
-                      {stats.mobileClicks}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      모바일 클릭
-                    </Typography>
-                  </Box>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Smartphone sx={{ mr: 2, color: 'warning.main' }} />
+                <Box>
+                  <Typography variant="h4" fontWeight="bold">
+                    {stats.mobileClicks}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    모바일 클릭
+                  </Typography>
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Computer sx={{ mr: 2, color: 'info.main' }} />
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold">
-                      {stats.totalClicks > 0 ? Math.round((stats.mobileClicks / stats.totalClicks) * 100) : 0}%
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      모바일 비율
-                    </Typography>
-                  </Box>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Computer sx={{ mr: 2, color: 'info.main' }} />
+                <Box>
+                  <Typography variant="h4" fontWeight="bold">
+                    {stats.totalClicks > 0 ? Math.round((stats.mobileClicks / stats.totalClicks) * 100) : 0}%
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    모바일 비율
+                  </Typography>
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
 
         {/* 링크 목록 테이블 */}
         <Card>

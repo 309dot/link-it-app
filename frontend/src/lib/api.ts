@@ -92,7 +92,17 @@ export const linkApi = {
       hasPrev: boolean;
     };
   }> => {
-    const response = await apiClient.get<ApiResponse<any>>('/api/links', {
+    const response = await apiClient.get<ApiResponse<{
+      links: LinkWithAnalytics[];
+      pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+        itemsPerPage: number;
+        hasNext: boolean;
+        hasPrev: boolean;
+      };
+    }>>('/api/links', {
       params: { page, limit }
     });
     return response.data.data;
@@ -123,7 +133,13 @@ export const linkApi = {
     createdAt: string;
     lastClickedAt: string | null;
   }> => {
-    const response = await apiClient.get<ApiResponse<any>>(`/api/links/${id}/analytics`);
+    const response = await apiClient.get<ApiResponse<{
+      linkId: string;
+      shortCode: string;
+      analytics: AnalyticsData;
+      createdAt: string;
+      lastClickedAt: string | null;
+    }>>(`/api/links/${id}/analytics`);
     return response.data.data;
   },
 
@@ -145,7 +161,23 @@ export const linkApi = {
       createdAt: string;
     };
   }> => {
-    const response = await apiClient.get<ApiResponse<any>>(`/preview/${shortCode}`);
+    const response = await apiClient.get<ApiResponse<{
+      shortCode: string;
+      title?: string;
+      description?: string;
+      originalUrl: string;
+      redirectUrl: string;
+      platform: string;
+      deviceInfo: {
+        type: string;
+        browser: string;
+        isInApp: boolean;
+      };
+      analytics: {
+        totalClicks: number;
+        createdAt: string;
+      };
+    }>>(`/preview/${shortCode}`);
     return response.data.data;
   },
 };

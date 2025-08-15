@@ -47,8 +47,9 @@ export default function LinkForm() {
         title: '',
         description: '',
       });
-    } catch (err: any) {
-      setError(err.response?.data?.error || '링크 생성에 실패했습니다.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || '링크 생성에 실패했습니다.');
     } finally {
       setLoading(false);
     }

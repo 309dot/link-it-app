@@ -1,6 +1,6 @@
 'use client';
 
-import { Container, Box, Typography, Grid, Card, CardContent } from '@mui/material';
+import { Container, Box, Typography, Card, CardContent } from '@mui/material';
 import { Speed, Security, Analytics } from '@mui/icons-material';
 import Navbar from '@/components/Navbar';
 import LinkForm from '@/components/LinkForm';
@@ -20,53 +20,57 @@ export default function Home() {
           </Typography>
         </Box>
 
-        <Grid container spacing={4}>
+        <Box 
+          sx={{ 
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' },
+            gap: 4
+          }}
+        >
           {/* 왼쪽: 링크 생성 폼 */}
-          <Grid item xs={12} md={8}>
+          <Box>
             <LinkForm />
-          </Grid>
+          </Box>
 
           {/* 오른쪽: 기능 설명 */}
-          <Grid item xs={12} md={4}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Speed sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="h6">빠른 리디렉션</Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary">
-                    사용자 디바이스를 자동 감지하여 최적의 경로로 즉시 이동시킵니다.
-                  </Typography>
-                </CardContent>
-              </Card>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Speed sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6">빠른 리디렉션</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  사용자 디바이스를 자동 감지하여 최적의 경로로 즉시 이동시킵니다.
+                </Typography>
+              </CardContent>
+            </Card>
 
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Security sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="h6">안전한 링크</Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary">
-                    검증된 쇼핑몰만 지원하며, 안전하고 신뢰할 수 있는 리디렉션을 보장합니다.
-                  </Typography>
-                </CardContent>
-              </Card>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Security sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6">안전한 링크</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  검증된 쇼핑몰만 지원하며, 안전하고 신뢰할 수 있는 리디렉션을 보장합니다.
+                </Typography>
+              </CardContent>
+            </Card>
 
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Analytics sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="h6">실시간 분석</Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary">
-                    클릭 수, 디바이스 정보, 전환율 등을 실시간으로 추적하고 분석합니다.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Box>
-          </Grid>
-        </Grid>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Analytics sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6">실시간 분석</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  클릭 수, 디바이스 정보, 전환율 등을 실시간으로 추적하고 분석합니다.
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        </Box>
 
         {/* 지원 플랫폼 */}
         <Box sx={{ mt: 6, textAlign: 'center' }}>

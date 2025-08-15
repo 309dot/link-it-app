@@ -1,0 +1,20 @@
+{
+  "name": "link-it-app",
+  "version": "1.0.0",
+  "description": "딥링크 서비스 - 소셜미디어에서 모바일 앱으로 바로 이동하는 스마트 링크 서비스",
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm run start",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:start": "cd backend && npm start",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev:all": "concurrently \"npm run backend:dev\" \"npm run dev\""
+  },
+  "keywords": ["deeplink", "url-shortener", "mobile-app", "e-commerce", "redirect"],
+  "author": "309dot",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
