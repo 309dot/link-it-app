@@ -304,7 +304,19 @@ app.get('/', (req, res) => {
     console.log('✅ Next.js index.html 발견, 서빙 중');
     res.sendFile(indexPath);
   } else {
-    console.log('❌ Next.js 빌드 파일 없음, 간단한 안내 페이지 표시');
+    console.log('❌ Next.js 빌드 파일 없음, out 폴더 내용 확인:');
+    try {
+      const outPath = path.join(__dirname, '../frontend/out');
+      const files = fs.existsSync(outPath) ? fs.readdirSync(outPath) : [];
+      console.log('out 폴더 파일들:', files);
+      
+      const frontendPath = path.join(__dirname, '../frontend');
+      const frontendFiles = fs.existsSync(frontendPath) ? fs.readdirSync(frontendPath) : [];
+      console.log('frontend 폴더 파일들:', frontendFiles);
+    } catch (e) {
+      console.error('폴더 확인 실패:', e);
+    }
+    
     res.send(`
       <html>
         <head><title>Link-It Service</title></head>
@@ -312,6 +324,7 @@ app.get('/', (req, res) => {
           <h1>🚀 Link-It 딥링크 서비스</h1>
           <p>Next.js 프론트엔드가 빌드되지 않았습니다.</p>
           <p><a href="/api/links">API 테스트</a> | <a href="/demo1">리디렉션 테스트</a></p>
+          <p>경로: ${indexPath}</p>
         </body>
       </html>
     `);
