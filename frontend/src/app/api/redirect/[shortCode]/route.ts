@@ -10,10 +10,10 @@ const mockLinks: Record<string, string> = {
 // GET /api/redirect/[shortCode] - 서버사이드 리디렉션
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ shortCode: string }> }
+  { params }: { params: { shortCode: string } }
 ) {
   try {
-    const { shortCode } = await params
+    const { shortCode } = params
     console.log('🔗 API 리디렉션 요청:', shortCode)
 
     let redirectUrl = mockLinks[shortCode]
