@@ -7,23 +7,7 @@ const nextConfig: NextConfig = {
     unoptimized: false,  // Vercel에서 이미지 최적화 활성화
   },
   
-  // Next.js 내장 rewrites 사용 (vercel.json 대신)
-  async rewrites() {
-    return [
-      {
-        source: '/demo1',
-        destination: '/api/redirect/demo1',
-      },
-      {
-        source: '/demo2',
-        destination: '/api/redirect/demo2',
-      },
-      {
-        source: '/:shortCode(\\w{4,6})',
-        destination: '/api/redirect/:shortCode',
-      },
-    ]
-  },
+  // 미들웨어 방식으로 변경하여 rewrites 제거
 }
 
 export default nextConfig
