@@ -24,41 +24,37 @@ if (!cached) {
 }
 
 async function connectDB(): Promise<typeof mongoose> {
-  // 강제로 연결 시도
-  console.log('🔥 MongoDB 연결 강제 시도...');
+  console.log('🔥 MongoDB 연결 시도...');
 
   if (cached!.conn) {
+    console.log('✅ 기존 연결 재사용');
     return cached!.conn;
   }
 
   if (!cached!.promise) {
     const opts = {
-      bufferCommands: false,
-      serverSelectionTimeoutMS: 3000, // 3초로 단축
-      maxPoolSize: 5,
-      retryWrites: false, // 재시도 끄기
-      retryReads: false,
+      bufferCommands: true, // 연결 완료까지 기다리기
+      serverSelectionTimeoutMS: 10000, // 10초로 충분히
+      maxPoolSize: 10,
+      retryWrites: true,
+      retryReads: true,
     };
 
     cached!.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('✅ MongoDB 연결 성공');
       return mongoose;
-    }).catch((error) => {
-      console.warn('⚠️ MongoDB 연결 실패 (무시):', error.message);
-      cached!.promise = null;
-      return mongoose; // 에러 대신 빈 mongoose 반환
     });
   }
 
   try {
     cached!.conn = await cached!.promise;
+    console.log('🎉 MongoDB 연결 완료!');
+    return cached!.conn;
   } catch (e) {
     cached!.promise = null;
-    console.warn('⚠️ MongoDB 연결 최종 실패 (무시):', (e as Error).message);
-    return mongoose; // 에러 대신 빈 mongoose 반환
+    console.error('❌ MongoDB 연결 실패:', (e as Error).message);
+    throw new Error('데이터베이스 연결 실패');
   }
-
-  return cached!.conn;
 }
 
 export default connectDB;
