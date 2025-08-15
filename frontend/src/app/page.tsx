@@ -26,9 +26,19 @@ function RedirectHandler() {
       let redirectUrl = mockLinks[code];
 
       if (redirectUrl) {
-        // 목업 링크 즉시 리디렉션
+        // 목업 링크 즉시 리디렉션 (3초 후)
         console.log(`✅ 목업 링크 리디렉션: ${code} → ${redirectUrl}`);
-        window.location.href = redirectUrl;
+        alert(`리디렉션 시작: ${redirectUrl}`); // 디버깅용
+        
+        setTimeout(() => {
+          console.log('🚀 지금 리디렉션 실행!');
+          try {
+            window.location.href = redirectUrl;
+          } catch (error) {
+            console.error('리디렉션 에러:', error);
+            alert('리디렉션 실패: ' + error);
+          }
+        }, 3000);
         return;
       }
 
@@ -76,7 +86,14 @@ function RedirectHandler() {
         <div style={{ textAlign: 'center' }}>
           <h1>🚀 Link-It 리디렉션 중...</h1>
           <p>Short Code: <code>{code}</code></p>
-          <p>잠시 후 자동으로 이동됩니다...</p>
+          <p>3초 후 자동으로 이동됩니다...</p>
+          <div style={{ marginTop: '20px', padding: '10px', background: '#f0f0f0', borderRadius: '5px' }}>
+            <p><strong>디버깅 정보:</strong></p>
+            <p>목적지: {code === 'demo1' ? 'https://www.coupang.com/example1' : 
+                      code === 'demo2' ? 'https://shopping.naver.com/example2' :
+                      code === 'test123' ? 'https://example.com' : '알 수 없음'}</p>
+            <p>브라우저 콘솔(F12)을 확인하세요!</p>
+          </div>
         </div>
       </div>
     );
