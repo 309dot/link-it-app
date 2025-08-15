@@ -35,13 +35,9 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    // 단순화된 matcher - 4-6자리 영숫자만 매치
+    '/demo1',
+    '/demo2', 
+    '/((?!api|_next|favicon).*)',
   ],
 }
