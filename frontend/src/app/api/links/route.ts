@@ -182,11 +182,6 @@ export async function GET(request: NextRequest) {
       data: mockLinks,
       message: '🎯 목업 데이터 - 실제 저장되지 않음'
     });
-
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortOrder = searchParams.get('sortOrder') || 'desc';
     
     const skip = (page - 1) * limit;
