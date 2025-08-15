@@ -4,10 +4,94 @@ import { Container, Box, Typography, Card, CardContent } from '@mui/material';
 import { Speed, Security, Analytics } from '@mui/icons-material';
 import Navbar from '@/components/Navbar';
 import LinkForm from '@/components/LinkForm';
+import { useEffect, useSearchParams } from 'react';
+import { Suspense } from 'react';
+
+// 리디렉션 처리 컴포넌트
+function RedirectHandler() {
+  const searchParams = useSearchParams();
+  const code = searchParams.get('code');
+
+  useEffect(() => {
+    if (code) {
+      console.log('🔗 메인 페이지에서 리디렉션:', code);
+      
+      // 기본 목업 링크들
+      const mockLinks: Record<string, string> = {
+        'demo1': 'https://www.coupang.com/example1',
+        'demo2': 'https://shopping.naver.com/example2',
+        'test123': 'https://example.com'
+      };
+
+      let redirectUrl = mockLinks[code];
+
+      if (redirectUrl) {
+        // 목업 링크 즉시 리디렉션
+        console.log(`✅ 목업 링크 리디렉션: ${code} → ${redirectUrl}`);
+        window.location.href = redirectUrl;
+        return;
+      }
+
+      // API에서 생성된 링크 확인
+      fetch('/api/links')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            const foundLink = data.data.find((link: any) => link.shortCode === code);
+            if (foundLink) {
+              redirectUrl = foundLink.originalUrl;
+              console.log(`✅ API에서 링크 발견: ${code} → ${redirectUrl}`);
+              window.location.href = redirectUrl;
+              return;
+            }
+          }
+          
+          // 기본 URL로 폴백
+          redirectUrl = 'https://www.coupang.com';
+          console.log(`ℹ️ 기본 URL로 리디렉션: ${code}`);
+          window.location.href = redirectUrl;
+        })
+        .catch(error => {
+          console.error('API 호출 실패:', error);
+          window.location.href = 'https://www.coupang.com';
+        });
+    }
+  }, [code]);
+
+  if (code) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <h1>🚀 Link-It 리디렉션 중...</h1>
+          <p>Short Code: <code>{code}</code></p>
+          <p>잠시 후 자동으로 이동됩니다...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
 
 export default function Home() {
   return (
     <>
+      <Suspense fallback={<div>Loading...</div>}>
+        <RedirectHandler />
+      </Suspense>
+      
       <Navbar />
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* 헤더 섹션 */}
