@@ -1,18 +1,20 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
     {
-      "src": "/(.*)",
-      "dest": "frontend/$1"
+      "source": "/dashboard/(.*)",
+      "destination": "/dashboard/$1"
+    },
+    {
+      "source": "/_next/(.*)",
+      "destination": "/_next/$1"
+    },
+    {
+      "source": "/(?!api|dashboard|_next)([^.]+)",
+      "destination": "/api/r/$1"
     }
-  ],
-  "env": {
-    "NEXT_PUBLIC_API_URL": "http://localhost:3000"
-  }
+  ]
 }

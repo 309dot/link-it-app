@@ -13,16 +13,17 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false,
   },
   // Vercel 배포 최적화
+  trailingSlash: false,
   
-  // Rewrites for shortCode redirection
-  async rewrites() {
-    return [
-      {
-        source: '/:shortCode',
-        destination: '/api/r/:shortCode'
-      }
-    ]
-  },
+  // vercel.json으로 이동하여 제거
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: '/:shortCode',
+  //       destination: '/api/r/:shortCode'
+  //     }
+  //   ]
+  // },
 };
 
 export default nextConfig;
