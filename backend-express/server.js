@@ -81,14 +81,7 @@ function extractUrlFromText(text) {
   return matches ? matches[0] : null;
 }
 
-// API 라우트들
-app.get('/', (req, res) => {
-  res.json({ 
-    message: '🚀 Link-It API Server', 
-    status: 'running',
-    version: '1.0.0'
-  });
-});
+// API 라우트들 (메인 페이지는 아래쪽에서 처리)
 
 // 링크 생성
 app.post('/api/links', async (req, res) => {
