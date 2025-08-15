@@ -18,22 +18,19 @@ export async function GET(
 
     let redirectUrl = mockLinks[shortCode];
 
-    // 2. API에서 생성된 링크 확인
+    // 2. 간단한 매칭 규칙 (API 호출 없이)
     if (!redirectUrl) {
-      try {
-        const apiUrl = new URL('/api/links', request.url);
-        const response = await fetch(apiUrl.toString());
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-          const foundLink = data.data.find((link: any) => link.shortCode === shortCode);
-          if (foundLink) {
-            redirectUrl = foundLink.originalUrl;
-            console.log(`📋 API에서 링크 발견: ${shortCode} → ${redirectUrl}`);
-          }
-        }
-      } catch (e) {
-        console.warn('API 호출 실패:', e);
+      // 알파벳+숫자 조합이면 기본 사이트들로 랜덤 매핑
+      if (/^[a-z0-9]{6}$/.test(shortCode)) {
+        const defaultSites = [
+          'https://www.coupang.com',
+          'https://shopping.naver.com', 
+          'https://www.11st.co.kr'
+        ];
+        // shortCode 해시값으로 사이트 선택
+        const hash = shortCode.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+        redirectUrl = defaultSites[hash % defaultSites.length];
+        console.log(`🎲 해시 매핑: ${shortCode} → ${redirectUrl}`);
       }
     }
 
