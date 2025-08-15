@@ -153,7 +153,13 @@ export async function POST(request: NextRequest) {
 // GET /api/links - 링크 목록 조회
 export async function GET(request: NextRequest) {
   try {
-    await connectDB();
+    console.log('🔥 MongoDB 연결 시도...');
+    await Promise.race([
+      connectDB(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('연결 시간 초과')), 5000)
+      )
+    ]);
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
