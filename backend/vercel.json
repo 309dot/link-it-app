@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "name": "link-it-backend",
   "builds": [
     {
       "src": "server.js",
@@ -9,11 +10,10 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "server.js"
     }
   ],
   "env": {
-    "MONGODB_URI": "@mongodb_uri",
     "NODE_ENV": "production"
   }
 }

@@ -108,29 +108,35 @@ app.use((error, req, res, next) => {
   });
 });
 
-// 서버 시작
-app.listen(PORT, () => {
-  console.log(`🚀 딥링크 서비스 서버가 포트 ${PORT}에서 실행중입니다.`);
-  console.log(`📡 API 엔드포인트: ${BASE_URL}`);
-  console.log(`🏥 헬스체크: ${BASE_URL}/health`);
-  console.log(`📚 API 문서: ${BASE_URL}/`);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM 신호를 받았습니다. 서버를 종료합니다.');
-  mongoose.connection.close(() => {
-    console.log('MongoDB 연결이 종료되었습니다.');
-    process.exit(0);
+// Vercel 배포용 처리
+if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+  // Vercel에서는 serverless 함수로 실행
+  module.exports = app;
+} else {
+  // 로컬 개발 환경에서만 서버 시작
+  app.listen(PORT, () => {
+    console.log(`🚀 딥링크 서비스 서버가 포트 ${PORT}에서 실행중입니다.`);
+    console.log(`📡 API 엔드포인트: ${BASE_URL}`);
+    console.log(`🏥 헬스체크: ${BASE_URL}/health`);
+    console.log(`📚 API 문서: ${BASE_URL}/`);
   });
-});
 
-process.on('SIGINT', () => {
-  console.log('SIGINT 신호를 받았습니다. 서버를 종료합니다.');
-  mongoose.connection.close(() => {
-    console.log('MongoDB 연결이 종료되었습니다.');
-    process.exit(0);
+  // Graceful shutdown (로컬에서만)
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM 신호를 받았습니다. 서버를 종료합니다.');
+    mongoose.connection.close(() => {
+      console.log('MongoDB 연결이 종료되었습니다.');
+      process.exit(0);
+    });
   });
-});
+
+  process.on('SIGINT', () => {
+    console.log('SIGINT 신호를 받았습니다. 서버를 종료합니다.');
+    mongoose.connection.close(() => {
+      console.log('MongoDB 연결이 종료되었습니다.');
+      process.exit(0);
+    });
+  });
+}
 
 module.exports = app;
