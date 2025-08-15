@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API 기본 설정
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://link-it-backend.vercel.app';
+// API 기본 설정 (Next.js API Routes 사용)
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
