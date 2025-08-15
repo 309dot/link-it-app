@@ -15,9 +15,21 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔧 API 호출 시작');
     
-    // 임시로 목업 모드 강제 사용
-    const useDatabase = false;
-    console.log('🔧 목업 모드 강제 활성화');
+    // MongoDB 연결 테스트
+    let useDatabase = false;
+    try {
+      await Promise.race([
+        connectDB(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('DB 연결 시간 초과')), 5000)
+        )
+      ]);
+      useDatabase = true;
+      console.log('✅ MongoDB 연결 성공 - sample_mflix 데이터베이스');
+    } catch (dbError) {
+      console.warn('⚠️ MongoDB 연결 실패, 목업 모드로 진행:', (dbError as Error).message);
+      useDatabase = false;
+    }
 
     const body = await request.json();
     const { originalUrl, title, description } = body;
