@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Link-It 딥링크 서비스</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container { 
+            background: rgba(255,255,255,0.1); 
+            padding: 40px; 
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .form-group { margin: 20px 0; }
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button { 
+            background: #ff6b6b; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 50px; 
+            font-size: 16px; 
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            background: #ff5252; 
+            transform: translateY(-2px);
+        }
+        .result { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 10px; 
+            display: none;
+        }
+        .test-links { 
+            margin-top: 30px; 
+            text-align: center; 
+        }
+        .test-link { 
+            color: #ffd700; 
+            text-decoration: none; 
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        .test-link:hover { 
+            text-decoration: underline; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Link-It 딥링크 서비스</h1>
+        <p>소셜미디어에서 앱으로 바로 이동하는 혁신적인 링크 서비스</p>
+        
+        <form onsubmit="createLink(event)">
+            <div class="form-group">
+                <label>📎 원본 URL:</label>
+                <input type="text" id="originalUrl" 
+                       placeholder="https://www.coupang.com/... 또는 전체 텍스트 붙여넣기" 
+                       required>
+            </div>
+            
+            <div class="form-group">
+                <label>📝 제목 (선택사항):</label>
+                <input type="text" id="title" placeholder="링크 제목">
+            </div>
+            
+            <div class="form-group">
+                <label>📄 설명 (선택사항):</label>
+                <textarea id="description" placeholder="링크 설명" rows="3"></textarea>
+            </div>
+            
+            <button type="submit">🔗 단축 링크 생성</button>
+            <button type="button" onclick="pasteFromClipboard()">📋 클립보드에서 붙여넣기</button>
+        </form>
+        
+        <div id="result" class="result">
+            <h3>✅ 링크 생성 완료!</h3>
+            <p><strong>단축 URL:</strong> <a id="shortUrl" target="_blank"></a></p>
+            <button onclick="copyToClipboard()">📋 복사</button>
+        </div>
+        
+        <div class="test-links">
+            <h3>🧪 테스트 링크들:</h3>
+            <a href="/demo1" class="test-link">Demo1 (쿠팡)</a>
+            <a href="/demo2" class="test-link">Demo2 (네이버)</a>
+            <a href="/api/links" class="test-link">API 테스트</a>
+        </div>
+    </div>
+
+    <script>
+        async function createLink(event) {
+            event.preventDefault();
+            
+            const originalUrl = document.getElementById('originalUrl').value;
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            
+            try {
+                const response = await fetch('/api/links', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ originalUrl, title, description })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const shortUrl = data.data.shortUrl;
+                    document.getElementById('shortUrl').href = shortUrl;
+                    document.getElementById('shortUrl').textContent = shortUrl;
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    alert('❌ 링크 생성 실패: ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ 오류 발생: ' + error.message);
+            }
+        }
+        
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('originalUrl').value = text;
+            } catch (err) {
+                alert('클립보드 접근 권한이 필요합니다.');
+            }
+        }
+        
+        function copyToClipboard() {
+            const shortUrl = document.getElementById('shortUrl').textContent;
+            navigator.clipboard.writeText(shortUrl).then(() => {
+                alert('✅ 클립보드에 복사되었습니다!');
+            });
+        }
+    </script>
+</body>
+</html>

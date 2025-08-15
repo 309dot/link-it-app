@@ -15,7 +15,8 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json());
 
-// 정적 파일 서빙 (Next.js 빌드 결과물)
+// 정적 파일 서빙 (우선순위: public 폴더 → Next.js 빌드 결과물)
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, '../frontend/out')));
 
 // MongoDB 연결
