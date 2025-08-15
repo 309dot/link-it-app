@@ -41,7 +41,14 @@ export default function LinkForm() {
   const [isExtracting, setIsExtracting] = useState(false);
   
   // 링크 프리뷰 상태
-  const [preview, setPreview] = useState<any>(null);
+  const [preview, setPreview] = useState<{
+    title: string;
+    description: string;
+    image: string;
+    favicon: string;
+    url: string;
+    siteName: string;
+  } | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
 
@@ -66,7 +73,12 @@ export default function LinkForm() {
       const data = await response.json();
 
       if (data.success) {
-        setPreview(data.data);
+        setPreview({
+          ...data.data,
+          image: data.data.image || '',
+          siteName: data.data.siteName || new URL(url).hostname,
+          favicon: data.data.favicon || '',
+        });
         // 제목이 비어있으면 프리뷰에서 가져오기
         if (!formData.title && data.data.title) {
           setFormData(prev => ({ ...prev, title: data.data.title }));
@@ -95,10 +107,21 @@ export default function LinkForm() {
         setPreview(null);
         setPreviewError(null);
       }
-    }, 1000); // 1초 대기
+    }, 800); // 0.8초 대기
 
     return () => clearTimeout(timer);
   }, [formData.originalUrl, fetchPreview]);
+
+  // 미리보기 데이터로 제목과 설명 자동 입력
+  useEffect(() => {
+    if (preview && preview.title) {
+      setFormData(prev => ({
+        ...prev,
+        title: prev.title || preview.title, // 기존 제목이 없을 때만
+        description: prev.description || preview.description, // 기존 설명이 없을 때만
+      }));
+    }
+  }, [preview]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,15 +162,14 @@ export default function LinkForm() {
   ) => {
     const value = e.target.value;
     
-    // URL 필드에 입력할 때 자동으로 URL 추출 시도
-    if (field === 'originalUrl' && value.includes('http')) {
+    // URL 필드에 입력할 때 자동으로 URL만 추출 (제목, 설명은 미리보기에서)
+    if (field === 'originalUrl' && value.trim()) {
       const extracted = extractUrlFromText(value);
       if (extracted.url && extracted.url !== value) {
         setFormData(prev => ({
           ...prev,
           originalUrl: extracted.url || '',
-          title: prev.title || extracted.title,
-          description: prev.description || extracted.description,
+          // 제목과 설명은 미리보기에서 자동으로 채워지도록 함
         }));
         return;
       }
@@ -168,8 +190,7 @@ export default function LinkForm() {
         setFormData(prev => ({
           ...prev,
           originalUrl: extracted.url || '',
-          title: prev.title || extracted.title,
-          description: prev.description || extracted.description,
+          // 제목과 설명은 미리보기에서 자동으로 채워지도록 함
         }));
         setError(null);
       } else {

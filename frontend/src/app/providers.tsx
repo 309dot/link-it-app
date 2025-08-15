@@ -2,7 +2,7 @@
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 
 const theme = createTheme({
   palette: {

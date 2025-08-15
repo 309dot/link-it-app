@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API 기본 설정 (Railway 통합 서버 - 상대경로)
-const API_BASE_URL = '/api';
+// API 기본 설정 (Railway 통합 서버 - 절대경로)
+const API_BASE_URL = 'https://link-it-app-production.up.railway.app/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
