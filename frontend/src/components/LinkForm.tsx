@@ -212,6 +212,14 @@ export default function LinkForm() {
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            
+            {/* 링크 프리뷰 */}
+            <LinkPreview 
+              preview={preview}
+              loading={previewLoading}
+              error={previewError}
+            />
+
             <Box sx={{ position: 'relative' }}>
               <TextField
                 label="상품 URL"
