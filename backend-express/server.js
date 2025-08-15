@@ -205,13 +205,47 @@ app.get('/:shortCode', async (req, res) => {
   }
 });
 
-// Next.js 라우팅을 위한 catch-all (SPA fallback)
-app.get('*', (req, res) => {
-  // API 라우트나 리디렉션이 아닌 경우에만 index.html 서빙
-  if (!req.path.startsWith('/api') && !req.path.match(/^\/[a-zA-Z0-9]{6}$/)) {
-    res.sendFile(path.join(__dirname, '../frontend/out/index.html'));
+// 메인 페이지 라우팅 (리디렉션과 구분)
+app.get('/', (req, res) => {
+  console.log('🏠 메인 페이지 요청');
+  const indexPath = path.join(__dirname, '../frontend/out/index.html');
+  console.log('📁 index.html 경로:', indexPath);
+  
+  // index.html이 있는지 확인
+  const fs = require('fs');
+  if (fs.existsSync(indexPath)) {
+    console.log('✅ index.html 발견, 서빙 중');
+    res.sendFile(indexPath);
   } else {
-    res.status(404).json({ error: 'Not found' });
+    console.log('❌ index.html 없음, API 응답으로 폴백');
+    res.json({ 
+      message: '🚀 Link-It API Server', 
+      status: 'running', 
+      version: '1.0.0',
+      note: '프론트엔드 빌드 대기 중...'
+    });
+  }
+});
+
+// Next.js 정적 파일을 위한 catch-all
+app.get('*', (req, res) => {
+  // 리디렉션 처리 (6자리 알파벳/숫자)
+  if (req.path.match(/^\/[a-zA-Z0-9]{6}$/)) {
+    // 리디렉션 로직은 위에서 이미 처리됨
+    return;
+  }
+  
+  // API 요청이 아닌 경우 index.html 서빙 (SPA)
+  if (!req.path.startsWith('/api')) {
+    const indexPath = path.join(__dirname, '../frontend/out/index.html');
+    const fs = require('fs');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({ error: 'Frontend not built yet' });
+    }
+  } else {
+    res.status(404).json({ error: 'API not found' });
   }
 });
 
