@@ -42,7 +42,7 @@ export async function GET(
           let redirectUrl = link.originalUrl;
           
           // 모바일 디바이스면 모바일 버전으로 변경
-          if (isMobile || isIOS || isAndroid) {
+          if (isIOS || isAndroid) {
             // 쿠팡 URL을 모바일 버전으로 변경
             if (redirectUrl.includes('coupang.com')) {
               redirectUrl = redirectUrl.replace('www.coupang.com', 'm.coupang.com');
