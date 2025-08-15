@@ -26,7 +26,6 @@ if (!cached) {
 async function connectDB(): Promise<typeof mongoose> {
   // 강제로 연결 시도
   console.log('🔥 MongoDB 연결 강제 시도...');
-  }
 
   if (cached!.conn) {
     return cached!.conn;
