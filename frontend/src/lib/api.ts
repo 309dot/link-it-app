@@ -78,7 +78,7 @@ export interface LinkWithAnalytics extends LinkResponse {
 export const linkApi = {
   // 링크 생성
   create: async (data: CreateLinkRequest): Promise<LinkResponse> => {
-    const response = await apiClient.post<ApiResponse<LinkResponse>>('/api/links', data);
+    const response = await apiClient.post<ApiResponse<LinkResponse>>('/links', data);
     return response.data.data;
   },
 
@@ -104,7 +104,7 @@ export const linkApi = {
         hasNext: boolean;
         hasPrev: boolean;
       };
-    }>>('/api/links', {
+    }>>('/links', {
       params: { page, limit }
     });
     return response.data.data;
@@ -112,19 +112,19 @@ export const linkApi = {
 
   // 특정 링크 조회
   getById: async (id: string): Promise<LinkWithAnalytics> => {
-    const response = await apiClient.get<ApiResponse<LinkWithAnalytics>>(`/api/links/${id}`);
+    const response = await apiClient.get<ApiResponse<LinkWithAnalytics>>(`/links/${id}`);
     return response.data.data;
   },
 
   // 링크 수정
   update: async (id: string, data: Partial<CreateLinkRequest>): Promise<LinkWithAnalytics> => {
-    const response = await apiClient.put<ApiResponse<LinkWithAnalytics>>(`/api/links/${id}`, data);
+    const response = await apiClient.put<ApiResponse<LinkWithAnalytics>>(`/links/${id}`, data);
     return response.data.data;
   },
 
   // 링크 삭제
   delete: async (id: string): Promise<void> => {
-    await apiClient.delete(`/api/links/${id}`);
+    await apiClient.delete(`/links/${id}`);
   },
 
   // 링크 분석 데이터 조회
@@ -141,7 +141,7 @@ export const linkApi = {
       analytics: AnalyticsData;
       createdAt: string;
       lastClickedAt: string | null;
-    }>>(`/api/links/${id}/analytics`);
+    }>>(`/links/${id}/analytics`);
     return response.data.data;
   },
 
