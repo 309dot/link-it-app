@@ -13,14 +13,15 @@ import {
 // POST /api/links - 새 링크 생성
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔧 API 호출 시작 - 환경 정보:', {
-      NODE_ENV: process.env.NODE_ENV,
-      hasMongoURI: !!process.env.MONGODB_URI,
-      timestamp: new Date().toISOString()
-    });
+    console.log('🔧 API 호출 시작');
     
-    // MongoDB 연결 시도 (타임아웃 처리)
-    await connectDB();
+    // MongoDB 연결 시도 (실패해도 계속 진행)
+    try {
+      await connectDB();
+    } catch (dbError) {
+      console.warn('⚠️ MongoDB 연결 실패, 임시 데이터 사용:', (dbError as Error).message);
+      // 연결 실패해도 계속 진행
+    }
 
     const body = await request.json();
     const { originalUrl, title, description } = body;

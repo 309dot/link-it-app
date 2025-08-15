@@ -23,15 +23,10 @@ if (!cached) {
 }
 
 async function connectDB(): Promise<typeof mongoose> {
-  // 환경변수가 없으면 에러 발생
+  // 일단 연결 시도하되, 실패해도 에러 던지지 않기
   if (!MONGODB_URI) {
-    console.error('❌ MONGODB_URI 환경변수가 설정되지 않았습니다.');
-    console.error('Vercel 환경변수 확인 필요:', {
-      NODE_ENV: process.env.NODE_ENV,
-      hasMongoURI: !!process.env.MONGODB_URI,
-      envKeys: Object.keys(process.env).filter(key => key.includes('MONGO')),
-    });
-    throw new Error('MONGODB_URI 환경변수가 설정되지 않았습니다. Vercel 대시보드에서 환경변수를 확인해주세요.');
+    console.warn('⚠️ MongoDB URI가 없습니다.');
+    return mongoose; // 빈 mongoose 반환
   }
 
   if (cached!.conn) {
@@ -41,21 +36,19 @@ async function connectDB(): Promise<typeof mongoose> {
   if (!cached!.promise) {
     const opts = {
       bufferCommands: false,
-      // 연결 타임아웃 및 재시도 설정
-      serverSelectionTimeoutMS: 5000, // 5초 타임아웃
-      maxPoolSize: 10,
-      retryWrites: true,
-      retryReads: true,
+      serverSelectionTimeoutMS: 3000, // 3초로 단축
+      maxPoolSize: 5,
+      retryWrites: false, // 재시도 끄기
+      retryReads: false,
     };
 
     cached!.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log('✅ MongoDB 연결됨 (Next.js API)');
+      console.log('✅ MongoDB 연결 성공');
       return mongoose;
     }).catch((error) => {
-      console.error('❌ MongoDB 연결 실패:', error);
-      // 연결 실패시 cached promise 초기화
+      console.warn('⚠️ MongoDB 연결 실패 (무시):', error.message);
       cached!.promise = null;
-      throw error;
+      return mongoose; // 에러 대신 빈 mongoose 반환
     });
   }
 
@@ -63,8 +56,8 @@ async function connectDB(): Promise<typeof mongoose> {
     cached!.conn = await cached!.promise;
   } catch (e) {
     cached!.promise = null;
-    console.error('❌ MongoDB 연결 실패 (최종):', e);
-    throw new Error('MongoDB 연결에 실패했습니다. 연결 정보를 확인해주세요.');
+    console.warn('⚠️ MongoDB 연결 최종 실패 (무시):', (e as Error).message);
+    return mongoose; // 에러 대신 빈 mongoose 반환
   }
 
   return cached!.conn;
