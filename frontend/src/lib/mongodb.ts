@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://jing309:Elrhs4113@cluster0.eyfjgmh.mongodb.net/linkitdb?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = 'mongodb+srv://jing309:Elrhs4113@cluster0.eyfjgmh.mongodb.net/linkitdb?retryWrites=true&w=majority&appName=Cluster0';
 
 if (!MONGODB_URI && process.env.NODE_ENV !== 'development') {
   console.warn('⚠️ MONGODB_URI 환경변수가 설정되지 않았습니다.');
