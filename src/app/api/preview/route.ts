@@ -21,14 +21,33 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // 특정 도메인에 대한 스킵 처리
+    const domain = new URL(url).hostname;
+    const skipDomains = ['coupang.com', 'naver.com', '11st.co.kr', 'gmarket.co.kr', 'auction.co.kr'];
+    
+    if (skipDomains.some(skipDomain => domain.includes(skipDomain))) {
+      console.log(`스킵된 도메인: ${domain}`);
+      return NextResponse.json({
+        success: true,
+        data: {
+          title: domain,
+          description: '',
+          image: null,
+          favicon: null,
+          url: url,
+          siteName: domain
+        }
+      });
+    }
+
     // 간단한 메타데이터 추출 (fetch로 HTML 가져오기)
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3초로 단축
       
       const response = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; Link-It/1.0)'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         },
         redirect: 'follow',
         signal: controller.signal

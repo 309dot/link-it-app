@@ -18,7 +18,9 @@ export async function POST(request: NextRequest) {
       isMobile: data.isMobile,
       isInAppBrowser: data.isInAppBrowser,
       finalUrl: data.finalUrl,
-      ip: request.ip || 'unknown'
+      ip: request.headers.get('x-forwarded-for')?.split(',')[0] || 
+          request.headers.get('x-real-ip') || 
+          'unknown'
     };
     
     analyticsStore.push(analyticsData);
